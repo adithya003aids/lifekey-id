@@ -1,1 +1,106 @@
 <!-- frontend placeholder -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LifeKey ID — Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- QR library (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">LifeKey ID</div>
+    <div class="tag">Emergency medical identity • demo</div>
+  </header>
+
+  <main id="app">
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <h1>LifeKey ID</h1>
+      <p class="lead">Instant access to a patient's emergency medical summary using a secure LifeKey ID / QR.</p>
+      <div class="grid">
+        <button class="btn primary" id="btn-patient">I am a Patient</button>
+        <button class="btn outline" id="btn-doctor">I am a Doctor</button>
+      </div>
+      <p class="note">Demo: patient data is stored locally. Backend integration available via API.</p>
+    </section>
+
+    <!-- PATIENT DASH -->
+    <section id="view-patient" class="view">
+      <button class="back" data-target="home">← Back</button>
+      <h2>Patient — Create / Edit Profile</h2>
+
+      <form id="patient-form" class="card">
+        <div class="row">
+          <label>Name <input id="p-name" required /></label>
+          <label>Phone <input id="p-phone" required /></label>
+        </div>
+        <div class="row">
+          <label>Age <input id="p-age" type="number" min="0" max="130" /></label>
+          <label>Blood Group
+            <select id="p-blood">
+              <option>Unknown</option><option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+            </select>
+          </label>
+        </div>
+        <label>Allergies <input id="p-allergies" placeholder="Comma separated (e.g. Penicillin,Peanuts)" /></label>
+        <label>Chronic Conditions <input id="p-conditions" placeholder="Comma separated" /></label>
+        <label>Medications <input id="p-medications" placeholder="Comma separated" /></label>
+        <label>Emergency Contact <input id="p-emer" placeholder="+91xxxxxxxxxx" /></label>
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Save & Generate LifeKey</button>
+          <button type="button" class="btn outline" id="btn-patient-clear">Clear</button>
+        </div>
+      </form>
+
+      <div id="lifekey-card" class="card hidden">
+        <h3>Your LifeKey</h3>
+        <div id="qrcode" class="qrcode"></div>
+        <div class="lk-meta">
+          <div><b>ID:</b> <span id="lk-id"></span> <button id="lk-copy" class="small">Copy</button></div>
+          <div><small>Last updated: <span id="lk-updated"></span></small></div>
+        </div>
+        <div class="actions">
+          <a id="lk-download" class="btn primary" download>Download QR</a>
+          <button id="btn-patient-edit" class="btn outline">Edit Profile</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOCTOR DASH -->
+    <section id="view-doctor" class="view">
+      <button class="back" data-target="home">← Back</button>
+      <h2>Doctor — Lookup Patient</h2>
+
+      <div class="card">
+        <label>LifeKey ID or paste ID:
+          <input id="d-lkid" placeholder="e.g. LK-AB12CD34" />
+        </label>
+        <div class="actions">
+          <button id="btn-lookup" class="btn primary">Fetch Emergency Profile</button>
+        </div>
+        <div class="note">In demo mode you can use locally created LifeKeys. In real deployment this calls the backend API with doctor authentication.</div>
+      </div>
+
+      <div id="doctor-result" class="card hidden">
+        <h3>Emergency Summary</h3>
+        <div id="result-alert" class="alert"></div>
+        <div id="result-body" class="result-body"></div>
+        <div class="actions">
+          <button id="btn-clear-result" class="btn outline">Clear</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Prototype • Not for production use • Data in demo stored locally</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
