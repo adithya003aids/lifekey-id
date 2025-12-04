@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import uuid
 from datetime import datetime
+import random
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend connections
@@ -35,7 +36,7 @@ class TempDatabase:
         self.add_sample_users()
     
     def add_sample_users(self):
-        # Sample patient
+        # Sample patient with complete data
         self.users.append({
             "id": "patient_123",
             "email": "john@example.com",
@@ -44,14 +45,17 @@ class TempDatabase:
             "fullName": "John Doe",
             "phone": "+1-555-0101",
             "patientData": {
+                "uniqueId": "LK123456789",
+                "address": "123 Main Street, New York, NY",
                 "bloodType": "O+",
                 "allergies": ["penicillin", "peanuts"],
                 "medications": ["Lisinopril 10mg", "Metformin"],
                 "conditions": ["Diabetes", "Hypertension"],
                 "emergencyContacts": [
-                    {"name": "Jane Doe", "phone": "+1-555-0102", "relation": "Wife"}
+                    {"name": "Jane Doe", "phone": "+1-555-0102", "relation": "Wife"},
+                    {"name": "Bob Smith", "phone": "+1-555-0103", "relation": "Brother"}
                 ],
-                "qrCode": "VT_123_ABC",
+                "qrCode": "LIFEKEY:LK123456789:patient_123",
                 "isVerified": True
             },
             "createdAt": "2024-01-20T10:00:00Z"
@@ -94,6 +98,9 @@ def register():
     if existing_user:
         return jsonify({"error": "User already exists"}), 400
     
+    # Generate unique ID for patient
+    unique_id = f"LK{int(datetime.utcnow().timestamp())}{random.randint(1000, 9999)}"
+    
     # Create new user
     new_user = {
         "id": str(uuid.uuid4()),
@@ -102,10 +109,25 @@ def register():
         "userType": data["userType"],
         "fullName": data["fullName"],
         "phone": data["phone"],
-        "patientData": data.get("patientData"),
-        "staffData": data.get("staffData"),
+        "patientData": None,
+        "staffData": None,
         "createdAt": datetime.utcnow().isoformat()
     }
+    
+    if data["userType"] == "patient":
+        new_user["patientData"] = {
+            "uniqueId": unique_id,
+            "address": data.get("patientData", {}).get("address", ""),
+            "bloodType": data.get("patientData", {}).get("bloodType", ""),
+            "allergies": data.get("patientData", {}).get("allergies", []),
+            "medications": data.get("patientData", {}).get("medications", []),
+            "conditions": data.get("patientData", {}).get("conditions", []),
+            "emergencyContacts": data.get("patientData", {}).get("emergencyContacts", []),
+            "qrCode": f"LIFEKEY:{unique_id}:{new_user['id']}",
+            "isVerified": False
+        }
+    else:
+        new_user["staffData"] = data.get("staffData", {})
     
     db.users.append(new_user)
     
@@ -118,7 +140,9 @@ def register():
             "id": new_user["id"],
             "email": new_user["email"],
             "userType": new_user["userType"],
-            "fullName": new_user["fullName"]
+            "fullName": new_user["fullName"],
+            "patientData": new_user.get("patientData"),
+            "staffData": new_user.get("staffData")
         }
     })
 
@@ -186,7 +210,6 @@ def get_nearby_hospitals():
     # Return hospitals with mock distances
     hospitals_with_distance = []
     for hospital in db.hospitals:
-        import random
         distance = round(random.uniform(1.0, 5.0), 1)
         
         hospital_data = hospital.copy()
@@ -215,12 +238,57 @@ def get_patient_by_qr():
         "patient": {
             "id": patient["id"],
             "fullName": patient["fullName"],
+            "email": patient["email"],
+            "phone": patient["phone"],
+            "patientData": patient.get("patientData", {})
+        }
+    })
+
+@app.route('/emergency/patient/id', methods=['POST'])
+def get_patient_by_id():
+    data = request.get_json()
+    patient_id = data.get("patientId", "").upper()
+    
+    print(f"🔍 Searching for patient with ID: {patient_id}")
+    
+    # Find patient by unique ID
+    patient = next((u for u in db.users if u.get("patientData", {}).get("uniqueId") == patient_id), None)
+    
+    if not patient:
+        print(f"❌ Patient not found with ID: {patient_id}")
+        return jsonify({"error": "Patient not found"}), 404
+    
+    print(f"✅ PATIENT FOUND: {patient['fullName']} via ID: {patient_id}")
+    
+    return jsonify({
+        "patient": {
+            "id": patient["id"],
+            "fullName": patient["fullName"],
+            "email": patient["email"],
             "phone": patient["phone"],
             "patientData": patient.get("patientData", {})
         }
     })
 
 # Patient Routes
+@app.route('/patient/profile', methods=['GET'])
+def get_patient_profile():
+    # For demo, return the sample patient
+    patient = next((u for u in db.users if u["id"] == "patient_123"), None)
+    
+    if not patient:
+        return jsonify({"error": "Patient not found"}), 404
+    
+    return jsonify({
+        "patient": {
+            "id": patient["id"],
+            "fullName": patient["fullName"],
+            "email": patient["email"],
+            "phone": patient["phone"],
+            "patientData": patient.get("patientData", {})
+        }
+    })
+
 @app.route('/patient/profile', methods=['PUT'])
 def update_patient_profile():
     data = request.get_json()
@@ -231,34 +299,31 @@ def update_patient_profile():
     if not user:
         return jsonify({"error": "Patient not found"}), 404
     
-    # Update patient data
-    user["patientData"] = data
+    # Update all fields
+    if 'fullName' in data:
+        user["fullName"] = data["fullName"]
+    if 'email' in data:
+        user["email"] = data["email"]
+    if 'phone' in data:
+        user["phone"] = data["phone"]
     
-    # Generate QR code if not exists
-    if not user["patientData"].get("qrCode"):
-        user["patientData"]["qrCode"] = f"VT_{user['id']}_{int(datetime.utcnow().timestamp())}"
+    if user.get("patientData"):
+        if 'address' in data:
+            user["patientData"]["address"] = data["address"]
+        if 'bloodType' in data:
+            user["patientData"]["bloodType"] = data["bloodType"]
+        if 'allergies' in data:
+            user["patientData"]["allergies"] = data["allergies"]
+        if 'medications' in data:
+            user["patientData"]["medications"] = data["medications"]
+        if 'conditions' in data:
+            user["patientData"]["conditions"] = data["conditions"]
+        if 'emergencyContacts' in data:
+            user["patientData"]["emergencyContacts"] = data["emergencyContacts"]
     
     return jsonify({
         "message": "Profile updated successfully",
-        "patientData": user["patientData"]
-    })
-
-@app.route('/patient/profile', methods=['GET'])
-def get_patient_profile():
-    # Find patient (in real app, use auth)
-    user = next((u for u in db.users if u["id"] == "patient_123"), None)
-    
-    if not user:
-        return jsonify({"error": "Patient not found"}), 404
-    
-    return jsonify({
-        "patient": {
-            "id": user["id"],
-            "fullName": user["fullName"],
-            "email": user["email"],
-            "phone": user["phone"],
-            "patientData": user.get("patientData", {})
-        }
+        "patientData": user.get("patientData", {})
     })
 
 # Hospital Routes

@@ -1,106 +1,520 @@
-<!-- frontend placeholder -->
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LifeKey ID — Demo</title>
-  <link rel="stylesheet" href="styles.css" />
-  <!-- QR library (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeKey ID - Emergency Medical System</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">LifeKey ID</div>
-    <div class="tag">Emergency medical identity • demo</div>
-  </header>
+    <div class="container">
+        <header>
+            <h1>🆘 LifeKey ID</h1>
+            <p>Emergency Medical Information System</p>
+        </header>
 
-  <main id="app">
-    <!-- HOME -->
-    <section id="view-home" class="view active">
-      <h1>LifeKey ID</h1>
-      <p class="lead">Instant access to a patient's emergency medical summary using a secure LifeKey ID / QR.</p>
-      <div class="grid">
-        <button class="btn primary" id="btn-patient">I am a Patient</button>
-        <button class="btn outline" id="btn-doctor">I am a Doctor</button>
-      </div>
-      <p class="note">Demo: patient data is stored locally. Backend integration available via API.</p>
-    </section>
-
-    <!-- PATIENT DASH -->
-    <section id="view-patient" class="view">
-      <button class="back" data-target="home">← Back</button>
-      <h2>Patient — Create / Edit Profile</h2>
-
-      <form id="patient-form" class="card">
-        <div class="row">
-          <label>Name <input id="p-name" required /></label>
-          <label>Phone <input id="p-phone" required /></label>
+        <!-- Login Section -->
+        <div id="loginSection" class="section">
+            <h2>Login</h2>
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Email" value="john@example.com">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password" value="password123">
+            </div>
+            <div class="form-group">
+                <select id="userType">
+                    <option value="patient">Patient</option>
+                    <option value="doctor">Doctor</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="login()">Login</button>
+            <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+            
+            <div class="demo-credentials">
+                <h4>Demo Credentials:</h4>
+                <p><strong>Patient:</strong> john@example.com / password123</p>
+                <p><strong>Doctor:</strong> dr.smith@hospital.com / password123</p>
+            </div>
         </div>
-        <div class="row">
-          <label>Age <input id="p-age" type="number" min="0" max="130" /></label>
-          <label>Blood Group
-            <select id="p-blood">
-              <option>Unknown</option><option>O+</option><option>O-</option><option>A+</option><option>A-</option>
-              <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
-            </select>
-          </label>
+
+        <!-- Register Section -->
+        <div id="registerSection" class="section" style="display: none;">
+            <h2>Register</h2>
+            
+            <div class="form-group">
+                <label>I am a:</label>
+                <select id="regUserType" onchange="showRegistrationForm()">
+                    <option value="patient">Patient</option>
+                    <option value="doctor">Doctor / Medical Staff</option>
+                </select>
+            </div>
+
+            <!-- Patient Registration Form -->
+            <div id="patientForm" class="registration-form">
+                <h3>Patient Registration</h3>
+                
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="patientName" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="patientEmail" placeholder="Enter your email">
+                </div>
+                
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="patientPassword" placeholder="Create a password">
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input type="tel" id="patientPhone" placeholder="Enter your phone number">
+                </div>
+                
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea id="patientAddress" placeholder="Enter your full address" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Blood Type</label>
+                    <select id="patientBloodType">
+                        <option value="">Select Blood Type</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Allergies</label>
+                    <input type="text" id="patientAllergies" placeholder="penicillin, nuts, dust, etc. (comma separated)">
+                </div>
+                
+                <div class="form-group">
+                    <label>Daily Medications</label>
+                    <input type="text" id="patientMedications" placeholder="Lisinopril, Metformin, Insulin, etc. (comma separated)">
+                </div>
+                
+                <div class="form-group">
+                    <label>Health Conditions</label>
+                    <input type="text" id="patientConditions" placeholder="Diabetes, Hypertension, Asthma, etc. (comma separated)">
+                </div>
+                
+                <h4>Emergency Contact</h4>
+                <div class="form-group">
+                    <label>Contact Name</label>
+                    <input type="text" id="emergencyContactName" placeholder="Emergency contact person name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Contact Phone</label>
+                    <input type="tel" id="emergencyContactPhone" placeholder="Emergency contact phone number">
+                </div>
+                
+                <div class="form-group">
+                    <label>Relationship</label>
+                    <input type="text" id="emergencyContactRelation" placeholder="Spouse, Parent, Friend, etc.">
+                </div>
+            </div>
+
+            <!-- Doctor Registration Form -->
+            <div id="doctorForm" class="registration-form" style="display: none;">
+                <h3>Medical Professional Registration</h3>
+                
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="doctorName" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="doctorEmail" placeholder="Enter your email">
+                </div>
+                
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="doctorPassword" placeholder="Create a password">
+                </div>
+                
+                <div class="form-group">
+                    <label>Medical License Number *</label>
+                    <input type="text" id="doctorLicense" placeholder="Enter your license number">
+                </div>
+                
+                <div class="form-group">
+                    <label>Hospital / Clinic</label>
+                    <input type="text" id="doctorHospital" placeholder="Where do you work?">
+                </div>
+                
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="doctorDepartment">
+                        <option value="">Select Department</option>
+                        <option value="Emergency Medicine">Emergency Medicine</option>
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Trauma Surgery">Trauma Surgery</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Oncology">Oncology</option>
+                        <option value="General Medicine">General Medicine</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Specialization</label>
+                    <input type="text" id="doctorSpecialization" placeholder="Your medical specialization">
+                </div>
+                
+                <div class="form-group">
+                    <label>Profile Photo (Optional)</label>
+                    <input type="file" id="doctorPhoto" accept="image/*">
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="register()">Complete Registration</button>
+            <button class="btn btn-secondary" onclick="showLogin()">Back to Login</button>
         </div>
-        <label>Allergies <input id="p-allergies" placeholder="Comma separated (e.g. Penicillin,Peanuts)" /></label>
-        <label>Chronic Conditions <input id="p-conditions" placeholder="Comma separated" /></label>
-        <label>Medications <input id="p-medications" placeholder="Comma separated" /></label>
-        <label>Emergency Contact <input id="p-emer" placeholder="+91xxxxxxxxxx" /></label>
 
-        <div class="actions">
-          <button type="submit" class="btn primary">Save & Generate LifeKey</button>
-          <button type="button" class="btn outline" id="btn-patient-clear">Clear</button>
+        <!-- Patient Dashboard -->
+        <div id="patientDashboard" class="section" style="display: none;">
+            <div class="dashboard-header">
+                <h2>Welcome, <span id="userName">User</span>! 👤</h2>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+            
+            <div class="action-grid">
+                <div class="action-card profile" onclick="showEditProfile()">
+                    <h3>📋 My Profile</h3>
+                    <p>View and edit medical information</p>
+                </div>
+                
+                <div class="action-card qr" onclick="showQRGenerator()">
+                    <h3>📱 System QR & ID</h3>
+                    <p>Generate QR for database lookup</p>
+                </div>
+                
+                <div class="action-card emergency" onclick="showCompleteDataQR()">
+                    <h3>📋 Complete Data QR</h3>
+                    <p>QR with all medical data (offline)</p>
+                </div>
+                
+                <div class="action-card hospital" onclick="findNearbyHospitals()">
+                    <h3>🏥 Nearby Hospitals</h3>
+                    <p>Find medical help nearby</p>
+                </div>
+
+                <div class="action-card emergency-report" onclick="reportEmergency()">
+                    <h3>🚨 Emergency Report</h3>
+                    <p>Report emergency to system</p>
+                </div>
+            </div>
+
+            <!-- Profile Summary -->
+            <div class="profile-summary">
+                <h3>Medical Profile Summary</h3>
+                <div class="profile-info">
+                    <p><strong>Name:</strong> <span id="profileName">-</span></p>
+                    <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
+                    <p><strong>Phone:</strong> <span id="profilePhone">-</span></p>
+                    <p><strong>Address:</strong> <span id="profileAddress">-</span></p>
+                    <p><strong>Blood Type:</strong> <span id="profileBloodType">-</span></p>
+                    <p><strong>Allergies:</strong> <span id="profileAllergies">-</span></p>
+                    <p><strong>Medications:</strong> <span id="profileMedications">-</span></p>
+                    <p><strong>Conditions:</strong> <span id="profileConditions">-</span></p>
+                    <p><strong>Unique ID:</strong> <span id="profileUniqueId">-</span></p>
+                    <div class="emergency-contacts">
+                        <strong>Emergency Contacts:</strong>
+                        <div id="profileEmergencyContacts">
+                            <p>No emergency contacts added</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </form>
 
-      <div id="lifekey-card" class="card hidden">
-        <h3>Your LifeKey</h3>
-        <div id="qrcode" class="qrcode"></div>
-        <div class="lk-meta">
-          <div><b>ID:</b> <span id="lk-id"></span> <button id="lk-copy" class="small">Copy</button></div>
-          <div><small>Last updated: <span id="lk-updated"></span></small></div>
+        <!-- Edit Profile Section -->
+        <div id="editProfileSection" class="section" style="display: none;">
+            <h2>Edit Medical Profile</h2>
+            
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="editName" placeholder="Enter your full name">
+            </div>
+            
+            <div class="form-group">
+                <label>Email Address *</label>
+                <input type="email" id="editEmail" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" id="editPhone" placeholder="Enter your phone number">
+            </div>
+            
+            <div class="form-group">
+                <label>Password (leave blank to keep current)</label>
+                <input type="password" id="editPassword" placeholder="Enter new password">
+            </div>
+            
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="editAddress" placeholder="Enter your full address" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Blood Type</label>
+                <select id="editBloodType">
+                    <option value="">Select Blood Type</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Allergies</label>
+                <input type="text" id="editAllergies" placeholder="penicillin, nuts, etc. (comma separated)">
+            </div>
+            
+            <div class="form-group">
+                <label>Medications</label>
+                <input type="text" id="editMedications" placeholder="Lisinopril, Metformin, etc. (comma separated)">
+            </div>
+            
+            <div class="form-group">
+                <label>Medical Conditions</label>
+                <input type="text" id="editConditions" placeholder="Diabetes, Hypertension, etc. (comma separated)">
+            </div>
+            
+            <h3>Emergency Contacts</h3>
+            <div id="editEmergencyContacts" class="emergency-contacts-edit">
+                <!-- Emergency contacts will be added here dynamically -->
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="addEmergencyContact()">+ Add Emergency Contact</button>
+            
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+                <button class="btn btn-secondary" onclick="showPatientDashboard()">Cancel</button>
+            </div>
         </div>
-        <div class="actions">
-          <a id="lk-download" class="btn primary" download>Download QR</a>
-          <button id="btn-patient-edit" class="btn outline">Edit Profile</button>
+
+        <!-- QR Generator Section -->
+        <div id="qrGeneratorSection" class="section" style="display: none;">
+            <div class="section-header">
+                <h2>📱 System QR Code & ID</h2>
+                <button class="btn btn-secondary" onclick="showPatientDashboard()">← Back to Dashboard</button>
+            </div>
+            
+            <div class="qr-generator-container">
+                <div class="qr-code-display">
+                    <h3>System QR Code</h3>
+                    <div id="qrCodeDisplay" class="qr-code-container"></div>
+                    <p class="qr-instruction">This QR code links to your medical data in our system. Requires internet connection.</p>
+                    <button class="btn btn-primary" onclick="downloadQRCode()">Download QR Code</button>
+                </div>
+                
+                <div class="unique-id-display">
+                    <h3>Your Medical ID</h3>
+                    <div class="unique-id-box">
+                        <span id="uniqueIdDisplay" class="unique-id">Generating...</span>
+                        <button class="btn-copy" onclick="copyPatientId()">Copy</button>
+                    </div>
+                    <p class="id-instruction">Use this ID if QR code is unavailable. Share with emergency personnel.</p>
+                </div>
+            </div>
+            
+            <div class="emergency-instructions">
+                <h4>Usage Instructions:</h4>
+                <ul>
+                    <li>📱 <strong>System QR</strong> - Links to database (requires internet)</li>
+                    <li>🔗 <strong>Medical ID</strong> - Manual lookup by medical staff</li>
+                    <li>🖨️ Print and carry in wallet</li>
+                    <li>🚨 Show to paramedics in emergencies</li>
+                </ul>
+            </div>
         </div>
-      </div>
-    </section>
 
-    <!-- DOCTOR DASH -->
-    <section id="view-doctor" class="view">
-      <button class="back" data-target="home">← Back</button>
-      <h2>Doctor — Lookup Patient</h2>
-
-      <div class="card">
-        <label>LifeKey ID or paste ID:
-          <input id="d-lkid" placeholder="e.g. LK-AB12CD34" />
-        </label>
-        <div class="actions">
-          <button id="btn-lookup" class="btn primary">Fetch Emergency Profile</button>
+        <!-- Complete Data QR Section -->
+        <div id="completeDataQRSection" class="section" style="display: none;">
+            <div class="section-header">
+                <h2>📋 Complete Medical Data QR</h2>
+                <button class="btn btn-secondary" onclick="showPatientDashboard()">← Back to Dashboard</button>
+            </div>
+            
+            <div class="qr-generator-container">
+                <div class="qr-code-display">
+                    <h3>Complete Medical Data QR</h3>
+                    <div id="completeDataQR" class="qr-code-container"></div>
+                    <p class="qr-instruction">This QR contains ALL your medical data. Doctors can scan it even without internet.</p>
+                    <button class="btn btn-primary" onclick="downloadCompleteDataQR()">Download Complete Data QR</button>
+                </div>
+                
+                <div class="unique-id-display">
+                    <h3>Your Medical ID</h3>
+                    <div class="unique-id-box">
+                        <span id="completeDataId" class="unique-id">Generating...</span>
+                        <button class="btn-copy" onclick="copyCompleteDataId()">Copy</button>
+                    </div>
+                    <p class="id-instruction">Use this ID if QR code is unavailable</p>
+                </div>
+            </div>
+            
+            <div class="data-preview">
+                <h4>Data included in this QR:</h4>
+                <pre id="completeDataPreview" class="data-preview-content"></pre>
+            </div>
+            
+            <div class="emergency-instructions">
+                <h4>Usage Instructions:</h4>
+                <ul>
+                    <li>📱 <strong>Complete Data QR</strong> - Contains all medical info (works offline)</li>
+                    <li>🔗 <strong>System QR</strong> - Links to database (requires internet)</li>
+                    <li>🖨️ Print both QR codes for maximum safety</li>
+                    <li>🚨 Show to paramedics in emergencies</li>
+                </ul>
+            </div>
         </div>
-        <div class="note">In demo mode you can use locally created LifeKeys. In real deployment this calls the backend API with doctor authentication.</div>
-      </div>
 
-      <div id="doctor-result" class="card hidden">
-        <h3>Emergency Summary</h3>
-        <div id="result-alert" class="alert"></div>
-        <div id="result-body" class="result-body"></div>
-        <div class="actions">
-          <button id="btn-clear-result" class="btn outline">Clear</button>
+        <!-- Hospitals Section -->
+        <div id="hospitalsSection" class="section" style="display: none;">
+            <div class="section-header">
+                <h2>🏥 Nearby Hospitals & Emergency Teams</h2>
+                <button class="btn btn-secondary" onclick="showPatientDashboard()">← Back to Dashboard</button>
+            </div>
+            
+            <div class="location-info">
+                <p><strong>📍 Your Current Location:</strong> 40.7128° N, 74.0060° W (Demo Location - New York)</p>
+            </div>
+            
+            <div class="hospitals-container">
+                <div id="hospitalsList" class="hospitals-list">
+                    <!-- Hospitals will be displayed here -->
+                </div>
+            </div>
         </div>
-      </div>
-    </section>
-  </main>
 
-  <footer class="footer">
-    <small>Prototype • Not for production use • Data in demo stored locally</small>
-  </footer>
+        <!-- Doctor Dashboard -->
+        <div id="doctorDashboard" class="section" style="display: none;">
+            <div class="dashboard-header">
+                <h2>Doctor Dashboard 👨‍⚕️</h2>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+            
+            <div class="action-grid">
+                <div class="action-card qr" onclick="showQRScanner()">
+                    <h3>📷 Scan QR Code</h3>
+                    <p>Scan patient's medical QR code</p>
+                </div>
+                
+                <div class="action-card profile" onclick="showPatientIdInput()">
+                    <h3>🔢 Enter Patient ID</h3>
+                    <p>Type patient's unique ID manually</p>
+                </div>
+                
+                <div class="action-card emergency" onclick="showFaceScanner()">
+                    <h3>👤 Scan Face</h3>
+                    <p>Facial recognition access</p>
+                </div>
+            </div>
+        </div>
 
-  <script src="script.js"></script>
+        <!-- Doctor QR Scanner -->
+        <div id="doctorQRScanner" class="section" style="display: none;">
+            <div class="section-header">
+                <h2>📷 Scan Patient QR Code</h2>
+                <button class="btn btn-secondary" onclick="showDoctorDashboard()">← Back to Dashboard</button>
+            </div>
+            
+            <div class="scanner-container">
+                <div class="scanner-placeholder">
+                    <div class="scanner-animation">
+                        <div class="scanner-line"></div>
+                    </div>
+                    <p>Point camera at patient's QR code</p>
+                </div>
+                
+                <button class="btn btn-primary" onclick="startQRScan()">Start QR Scan</button>
+                
+                <div class="manual-entry">
+                    <p>Or enter QR data manually:</p>
+                    <input type="text" id="manualQRInput" placeholder="LIFEKEY:LK123456789:patient_123" value="LIFEKEY:LK123456789:patient_123">
+                    <button class="btn btn-secondary" onclick="processScannedQR(document.getElementById('manualQRInput').value)">Submit QR Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor Patient ID Input -->
+        <div id="doctorPatientId" class="section" style="display: none;">
+            <div class="section-header">
+                <h2>🔢 Enter Patient ID</h2>
+                <button class="btn btn-secondary" onclick="showDoctorDashboard()">← Back to Dashboard</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Patient Unique ID</label>
+                <input type="text" id="patientIdInput" placeholder="Enter patient's unique ID (e.g., LK123456789)" value="LK123456789">
+                <p class="input-hint">Find this ID on patient's medical card or emergency contact information</p>
+            </div>
+            
+            <button class="btn btn-primary" onclick="getPatientById()">Get Patient Information</button>
+        </div>
+
+        <!-- Doctor Patient Info Display -->
+        <div id="doctorPatientInfo" class="section" style="display: none;">
+            <div class="section-header">
+                <h2>👤 Patient Medical Information</h2>
+                <button class="btn btn-secondary" onclick="showDoctorDashboard()">← Back to Dashboard</button>
+            </div>
+            
+            <div class="patient-info-container">
+                <div class="patient-basic-info">
+                    <h3 id="patientInfoName">Patient Name</h3>
+                    <p><strong>Phone:</strong> <span id="patientInfoPhone">-</span></p>
+                    <p><strong>Email:</strong> <span id="patientInfoEmail">-</span></p>
+                    <p><strong>Address:</strong> <span id="patientInfoAddress">-</span></p>
+                    <p><strong>Unique ID:</strong> <span id="patientInfoUniqueId">-</span></p>
+                </div>
+                
+                <div class="patient-medical-info">
+                    <h4>Medical Information</h4>
+                    <p><strong>Blood Type:</strong> <span id="patientInfoBloodType">-</span></p>
+                    <p><strong>Allergies:</strong> <span id="patientInfoAllergies">-</span></p>
+                    <p><strong>Medications:</strong> <span id="patientInfoMedications">-</span></p>
+                    <p><strong>Conditions:</strong> <span id="patientInfoConditions">-</span></p>
+                </div>
+                
+                <div class="patient-emergency-contacts">
+                    <h4>Emergency Contacts</h4>
+                    <div id="patientInfoEmergencyContacts">
+                        <p>No emergency contacts</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="medical-actions">
+                <button class="btn btn-primary">Add to Current Case</button>
+                <button class="btn btn-secondary">Print Medical Summary</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
